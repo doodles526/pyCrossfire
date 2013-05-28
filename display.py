@@ -58,10 +58,18 @@ class FieldAnalyzer(Process):
                 img.show()
 
     def puckLocations(self):
+        """
+        API proxy for accessing puck locations so user doesn't have to
+        deal with weird c_type memory
+        """
         return [(self.puck_locations[0].x, self.puck_locations[0].y),
                 (self.puck_locations[1].x, self.puck_locations[1].y)]
 
     def puckLocationsPercent(self):
+        """
+        Returns the percent the puck has progressed over the field
+        0% is left most, 100% is right most
+        """
         motorA = ((self.field_post_crop_limits[1] -
                    self.field_post_crop_limits[0]) -
                   (self.field_post_crop_limits[1] -
@@ -89,6 +97,11 @@ class FieldAnalyzer(Process):
         return (motorA, motorB)
 
     def calibrate(self):
+        """
+        A calibration tool which gives gui for calibrating
+        """
+
+        #####################INITIAL FIELD POINT CALIBRATION###################
         print "We are displaying a live feed from the cam.  Click " \
               "on a point of the field we tell you, then enter that info\n\n"
         print "Click top-left of field, then right click\n"
@@ -143,7 +156,11 @@ class FieldAnalyzer(Process):
                                          bottom_left[1] - locations[1]))
 
         self.crop_points = locations
+        #######################################################################
+        #######################################################################
 
+
+        #############################Lighting Calibration######################
         inVal = 200
 
         print "We are now starting calibration for lighting."
@@ -164,11 +181,16 @@ class FieldAnalyzer(Process):
             inVal = int(raw_input("Enter new thresh val for blobs, "
                                   "then -1 to confirm lighting calibration: "))
             print "\n"
+        #######################################################################
+        #######################################################################
 
+        ##################Post Crop Field Determination########################
         temp_positions = [0, 0, 0, 0]
         inVal = ""
         print "We are now taking some simple measurements " \
               "of the post-cropped playing field."
+
+        ####################Upper Left Determination###########################      
         raw_input("Place the puck in the upper-left most "
                   "side of the field and press [Enter]")
         while not re.match(r"[yY]", inVal):
@@ -189,8 +211,9 @@ class FieldAnalyzer(Process):
             inVal = str(raw_input("Enter y/Y if the puck is selected, and the "
                                   "displayed coordinate appears reasonable, "
                                   "otherwise just hit [Enter]"))
-            print inVal
+        #######################################################################
 
+        #######################Upper Right Determinstaion######################
         inVal = ""
         raw_input("Place the puck in the upper-right most side "
                   "of the field and press [Enter]")
@@ -212,7 +235,9 @@ class FieldAnalyzer(Process):
             inVal = raw_input("Enter y/Y if the puck is selected, and the "
                               "displayed coordinate appears reasonable, "
                               "otherwise just hit [Enter]")
+        #######################################################################
 
+        ######################Bottom Left Determination########################
         inVal = ""
         raw_input("Place the puck in the bottom-left most "
                   "side of the field and press [Enter]")
@@ -234,7 +259,9 @@ class FieldAnalyzer(Process):
             inVal = raw_input("Enter y/Y if the puck is selected, and the "
                               "displayed coordinate appears reasonable, "
                               "otherwise just hit [Enter]")
+        #######################################################################
 
+        ####################Bottom Right Determination#########################
         inVal = ""
         raw_input("Place the puck in the bottom-right most "
                   "side of the field and press [Enter]")
@@ -256,7 +283,9 @@ class FieldAnalyzer(Process):
             inVal = raw_input("Enter y/Y if the puck is selected, and the "
                               "displayed coordinate appears reasonable, "
                               "otherwise just hit [Enter]")
-
+        #######################################################################
+        
+        ###################Assigning Limits for post-Crop######################
         if temp_positions[0] < temp_positions[1]:
             self.field_post_crop_limits[0] = temp_positions[0]
         else:
@@ -266,6 +295,10 @@ class FieldAnalyzer(Process):
             self.field_post_crop_limits[1] = temp_positions[2]
         else:
             self.field_post_crop_limits[1] = temp_positions[3]
+        #######################################################################
+
+        #######################################################################
+        #######################################################################
 
         print self.crop_points
         print self.field_crop_boundary
