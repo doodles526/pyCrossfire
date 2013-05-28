@@ -31,11 +31,14 @@ class FieldAnalyzer(Process):
         now_time = time.time()
         while True:
             img = self.cam.getImage()\
+                # Crop the image
                 .regionSelect(self.crop_points[0],
                               self.crop_points[1],
                               self.crop_points[2],
                               self.crop_points[3]) \
+                # Warp the image
                 .warp(self.field_crop_boundary)
+            # create binary mask image for finding blobs
             mask = img.binarize(thresh=self.lighting_constant).invert()
             blobs = img.findBlobsFromMask(mask)
 
@@ -46,7 +49,7 @@ class FieldAnalyzer(Process):
                         self.puck_locations[i].y = blobs[i].coordinates()[1]
 
             if self.debug:
-                old_time = now_time
+                old_time = now_time  # timing
                 now_time = time.time()
                 fps = 1/(now_time - old_time)
                 if blobs:
