@@ -159,7 +159,6 @@ class FieldAnalyzer(Process):
         #######################################################################
         #######################################################################
 
-
         #############################Lighting Calibration######################
         inVal = 200
 
@@ -190,7 +189,7 @@ class FieldAnalyzer(Process):
         print "We are now taking some simple measurements " \
               "of the post-cropped playing field."
 
-        ####################Upper Left Determination###########################      
+        ####################Upper Left Determination###########################
         raw_input("Place the puck in the upper-left most "
                   "side of the field and press [Enter]")
         while not re.match(r"[yY]", inVal):
@@ -284,7 +283,7 @@ class FieldAnalyzer(Process):
                               "displayed coordinate appears reasonable, "
                               "otherwise just hit [Enter]")
         #######################################################################
-        
+
         ###################Assigning Limits for post-Crop######################
         if temp_positions[0] < temp_positions[1]:
             self.field_post_crop_limits[0] = temp_positions[0]
