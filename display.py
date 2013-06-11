@@ -30,17 +30,15 @@ class FieldAnalyzer(Process):
     def run(self):
         now_time = time.time()
         while True:
-            img = self.cam.getImage()\
-                # Crop the image
+            img = self.cam.getImage() \
                 .regionSelect(self.crop_points[0],
                               self.crop_points[1],
                               self.crop_points[2],
                               self.crop_points[3]) \
-                # Warp the image
                 .warp(self.field_crop_boundary)
             # create binary mask image for finding blobs
             mask = img.binarize(thresh=self.lighting_constant).invert()
-            blobs = img.findBlobsFromMask(mask)
+            blobs = img.findBlobsFromMask(mask, minsize=50, maxsize=200)
 
             if blobs:
                 for i in range(2):
@@ -150,13 +148,13 @@ class FieldAnalyzer(Process):
         else:
             locations[3] = bottom_right[1]
         self.field_crop_boundary.append((bottom_left[0] - locations[0],
-                                         top_left[1] - locations[1]))
-        self.field_crop_boundary.append((bottom_right[0] - locations[0],
                                          top_right[1] - locations[1]))
+        self.field_crop_boundary.append((bottom_right[0] - locations[0],
+                                         top_left[1] - locations[1]))
         self.field_crop_boundary.append((top_right[0] - locations[0],
-                                         bottom_right[1] - locations[1]))
-        self.field_crop_boundary.append((top_left[0] - locations[0],
                                          bottom_left[1] - locations[1]))
+        self.field_crop_boundary.append((top_left[0] - locations[0],
+                                         bottom_right[1] - locations[1]))
 
         self.crop_points = locations
         #######################################################################
@@ -166,8 +164,8 @@ class FieldAnalyzer(Process):
         inVal = 200
 
         print "We are now starting calibration for lighting."
-        while inVal != -1:
-
+        while not re.match(r"[yY]", str(inVal)):
+            
             img = self.cam.getImage() \
                 .regionSelect(locations[0],
                               locations[1],
@@ -175,13 +173,20 @@ class FieldAnalyzer(Process):
                               locations[3]) \
                 .warp(self.field_crop_boundary)
             mask = img.binarize(thresh=inVal).invert()
-            blobs = img.findBlobsFromMask(mask)
+            blobs = img.findBlobsFromMask(mask, minsize=50, maxsize=200)
             if blobs:
                 blobs.draw()
             img.show()
             self.lighting_constant = inVal
-            inVal = int(raw_input("Enter new thresh val for blobs, "
-                                  "then -1 to confirm lighting calibration: "))
+            oldVal = inVal
+            inVal = raw_input("Enter new thresh val for blobs, "
+                               "then -1 to confirm lighting calibration: ")
+            if re.match(r"\d+", inVal):
+                inVal = int(inVal)
+            elif re.match(r"[yY]", inVal):
+                pass
+            else:
+                inVal = oldVal
             print "\n"
         #######################################################################
         #######################################################################
@@ -204,7 +209,7 @@ class FieldAnalyzer(Process):
                               locations[3]) \
                 .warp(self.field_crop_boundary)
             mask = img.binarize(thresh=self.lighting_constant).invert()
-            blobs = img.findBlobsFromMask(mask)
+            blobs = img.findBlobsFromMask(mask, minsize=50, maxsize=200)
             if blobs:
                 blobs[0].draw()
                 print blobs[0]
@@ -228,7 +233,7 @@ class FieldAnalyzer(Process):
                               locations[3]) \
                 .warp(self.field_crop_boundary)
             mask = img.binarize(thresh=self.lighting_constant).invert()
-            blobs = img.findBlobsFromMask(mask)
+            blobs = img.findBlobsFromMask(mask, minsize=50, maxsize=200)
             if blobs:
                 blobs[0].draw()
                 print blobs[0]
@@ -252,7 +257,7 @@ class FieldAnalyzer(Process):
                               locations[3]) \
                 .warp(self.field_crop_boundary)
             mask = img.binarize(thresh=self.lighting_constant).invert()
-            blobs = img.findBlobsFromMask(mask)
+            blobs = img.findBlobsFromMask(mask, minsize=50, maxsize=200)
             if blobs:
                 blobs[0].draw()
                 print blobs[0]
@@ -276,7 +281,7 @@ class FieldAnalyzer(Process):
                               locations[3]) \
                 .warp(self.field_crop_boundary)
             mask = img.binarize(thresh=self.lighting_constant).invert()
-            blobs = img.findBlobsFromMask(mask)
+            blobs = img.findBlobsFromMask(mask, minsize=50, maxsize=200)
             if blobs:
                 blobs[0].draw()
                 print blobs[0]
